@@ -9,6 +9,7 @@ use std::error::Error;
 mod auth;
 mod db;
 mod routes;
+mod services;
 
 #[get("/hello")]
 async fn hello() -> impl Responder {

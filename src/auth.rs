@@ -1,11 +1,9 @@
-use std::{error::Error, pin::Pin};
+use std::pin::Pin;
 
 use actix_session::SessionExt;
 use actix_web::error::ErrorUnauthorized;
 use actix_web::Result;
-use actix_web::{FromRequest, HttpRequest};
-// use anyhow::Ok;
-// use anyhow::Result;
+use actix_web::{Error as AWError, FromRequest, HttpRequest};
 use futures_util::Future;
 use serde::{Deserialize, Serialize};
 
@@ -23,7 +21,7 @@ pub struct User {
 }
 
 impl FromRequest for User {
-    type Error = Box<dyn Error>;
+    type Error = AWError;
     type Future = Pin<Box<dyn Future<Output = Result<Self, Self::Error>>>>;
 
     fn extract(req: &HttpRequest) -> Self::Future {
@@ -38,13 +36,13 @@ impl FromRequest for User {
 
         let user: Option<User> = match session {
             Ok(user) => user,
-            Err(_) => return Box::pin(async { Err(ErrorUnauthorized("Unauthorized").into()) }),
+            Err(_) => None,
         };
 
         if user.is_some() {
             return Box::pin(async { Ok(user.unwrap()) });
         } else {
-            return Box::pin(async { Err(ErrorUnauthorized("Unauthorized").into()) });
+            return Box::pin(async { Err(ErrorUnauthorized("Unauthorized")) });
         }
     }
 }

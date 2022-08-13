@@ -9,7 +9,6 @@ pub type Connection = r2d2::PooledConnection<r2d2_sqlite::SqliteConnectionManage
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Post {
-    pub id: i32,
     pub title: String,
     pub content: String,
 }
@@ -29,7 +28,6 @@ fn get_all_posts(conn: Connection) -> Result<Vec<Post>, Box<dyn Error>> {
     let mut stmt = conn.prepare("SELECT * FROM posts")?;
     let posts_iter = stmt.query_map([], |row| {
         Ok(Post {
-            id: row.get(0)?,
             title: row.get(1)?,
             content: row.get(2)?,
         })

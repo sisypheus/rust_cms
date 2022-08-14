@@ -39,10 +39,9 @@ impl FromRequest for User {
             Err(_) => None,
         };
 
-        if user.is_some() {
-            return Box::pin(async { Ok(user.unwrap()) });
-        } else {
-            return Box::pin(async { Err(ErrorUnauthorized("Unauthorized")) });
+        match user {
+            Some(user) => Box::pin(async move { Ok(user) }),
+            None => Box::pin(async move { Err(ErrorUnauthorized("Unauthorized")) }),
         }
     }
 }

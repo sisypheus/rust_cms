@@ -1,5 +1,5 @@
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
-use actix_web::{cookie::Key, get, middleware, web, App, HttpServer, Responder};
+use actix_web::{cookie::Key, middleware, web, App, HttpServer};
 use argon2::{self, Config};
 use db::Pool;
 use r2d2_sqlite::{self, SqliteConnectionManager};
@@ -10,11 +10,6 @@ mod auth;
 mod db;
 mod routes;
 mod services;
-
-#[get("/hello")]
-async fn hello() -> impl Responder {
-    "Hello world!"
-}
 
 async fn create_admin(db: web::Data<Pool>) -> Result<(), Box<dyn Error>> {
     let conn = db.get()?;
@@ -56,7 +51,8 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/posts")
                     .service(web::resource("").route(web::get().to(routes::get_all_posts)))
-                    .service(web::resource("/save").route(web::post().to(routes::save_posts))),
+                    .service(web::resource("/save").route(web::post().to(routes::save_post)))
+                    .service(web::resource("/{id}").route(web::get().to(routes::get_post))),
             )
             .service(web::resource("/login").route(web::post().to(routes::login)))
     })

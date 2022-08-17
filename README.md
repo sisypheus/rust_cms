@@ -13,6 +13,10 @@ The authentication is session-based with HTTP session cookies.
 ## Run the application
 
 #### Requirements 
+* Setup db :   
+```cd db```
+```bash setup_db.sh```
+
 * Have rust installed, you can install it from [here](https://www.rust-lang.org/tools/install)
 * In a terminal : ```cargo run```
 

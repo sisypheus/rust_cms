@@ -14,7 +14,7 @@ The authentication is session-based with HTTP session cookies.
 
 #### Requirements 
 * Setup db :   
-```cd db```
+```cd db```      
 ```bash setup_db.sh```
 
 * Have rust installed, you can install it from [here](https://www.rust-lang.org/tools/install)

@@ -12,7 +12,8 @@ The authentication is session-based with HTTP session cookies.
 
 ## Run the application
 
-#### Requirements 
+#### Requirements
+* Install sqlite3
 * Setup db :   
 ```cd db```      
 ```bash setup_db.sh```

@@ -1,5 +1,7 @@
+use actix_cors::Cors;
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
-use actix_web::{cookie::Key, middleware, web, App, HttpServer};
+use actix_web::middleware;
+use actix_web::{cookie::Key, web, App, HttpServer};
 use argon2::{self, Config};
 use db::Pool;
 use r2d2_sqlite::{self, SqliteConnectionManager};
@@ -32,8 +34,15 @@ async fn create_admin(db: web::Data<Pool>) -> Result<(), Box<dyn Error>> {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv::dotenv().ok();
+    std::fs::create_dir_all("./tmp")?;
     let manager = SqliteConnectionManager::file("db/db");
     let pool = Pool::new(manager).unwrap();
+    let cookie_secure: bool = env::var("COOKIE_SECURE")
+        .unwrap_or("false".to_string())
+        .parse()
+        .unwrap();
+
+    env::set_var("RUST_LOG", "debug");
 
     match create_admin(web::Data::new(pool.clone())).await {
         Ok(_) => {}
@@ -41,13 +50,17 @@ async fn main() -> std::io::Result<()> {
     }
 
     HttpServer::new(move || {
+        let cors = Cors::permissive();
         App::new()
             .app_data(web::Data::new(pool.clone()))
             .wrap(middleware::Logger::default())
+            .wrap(cors)
             .wrap(
-                SessionMiddleware::builder(CookieSessionStore::default(), Key::from(&[0; 64]))
+                SessionMiddleware::builder(CookieSessionStore::default(), Key::generate())
+                    .cookie_secure(cookie_secure)
                     .build(),
             )
+            .service(web::resource("/protected").route(web::get().to(routes::protected)))
             .service(
                 web::scope("/posts")
                     .service(web::resource("").route(web::get().to(routes::get_all_posts)))

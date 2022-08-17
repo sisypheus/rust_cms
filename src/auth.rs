@@ -7,10 +7,17 @@ use actix_web::{Error as AWError, FromRequest, HttpRequest};
 use futures_util::Future;
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct LoginRequest {
     pub username: String,
     pub password: String,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct LoginResponse {
+    pub id: i32,
+    pub username: String,
+    pub email: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
@@ -18,6 +25,16 @@ pub struct User {
     pub id: i32,
     pub username: String,
     pub password: String,
+}
+
+impl LoginResponse {
+    pub fn new(user: &User) -> LoginResponse {
+        LoginResponse {
+            id: user.id,
+            username: user.username.to_string(),
+            email: user.username.to_string(),
+        }
+    }
 }
 
 impl FromRequest for User {

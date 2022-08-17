@@ -56,7 +56,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middleware::Logger::default())
             .wrap(cors)
             .wrap(
-                SessionMiddleware::builder(CookieSessionStore::default(), Key::generate())
+                SessionMiddleware::builder(CookieSessionStore::default(), Key::from(&[0; 64]))
                     .cookie_secure(cookie_secure)
                     .build(),
             )
